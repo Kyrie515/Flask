@@ -23,8 +23,9 @@ def register():
             try:
                 db.execute(
                     "INSERT INTO user (username, password) VALUES (?, ?)",
-                    username, generate_password_hash(password),
+                    (username, generate_password_hash(password)),
                 )
+                db.commit()
             except db.IntegrityError:
                 error = f"User {username} already exists!"
             else:
@@ -44,7 +45,7 @@ def login():
         #function fetchone() returns the result as a dict
         user = db.execute(
             "SELECT * FROM user WHERE username = ?",
-            (username)
+            (username, ),
         ).fetchone()
 
         if user is None:
@@ -58,7 +59,7 @@ def login():
             return redirect(url_for('index'))
 
         flash(error)
-        return render_template('auth/login.html')
+    return render_template('auth/login.html')
 
 @bp.before_app_request
 def load_logged_in_user():
